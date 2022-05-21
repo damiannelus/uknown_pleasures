@@ -4,8 +4,8 @@ const Point = require('./models/point');
 
 const settings = {
   dimensions: [ 1024, 1024 ],
-  animate: true,
-  duration: 10,
+  animate: false,
+  duration: 5,
   fps: 30
 };
 const quants = 256
@@ -31,7 +31,7 @@ const sketch = () => {
 
     const vertical_margin = height / 10;
     
-    for (let i = vertical_margin; i < height; i+=30) {
+    for (let i = vertical_margin; i < height - vertical_margin; i+=100) {
       context.moveTo(0,i);
       draw_sine(context, width, frame, height, i);
     }
@@ -41,13 +41,15 @@ const sketch = () => {
 
 function mid_pass_filter(x, y, frame, width, height) {
   const amplitude = height / 20;
-  const suppressor = Math.pow((4*x/width)-2,10) + 1;
+  // const suppressor = Math.pow((4*x/width)-2,10) + 1; //Unknown pleasues version
+  
+  const suppressor = Math.abs(Math.sin(2*Math.PI*x/width)); //Arctic Monkeys
   console.log('suppressor :>> ', suppressor);
-  return (random.noise2D(x, y + frame, 0.01, amplitude) - amplitude) / suppressor;
+  return (random.noise2D(x, y + frame, 0.2, amplitude)) * suppressor;
 }
 
 function draw_sine(context, width, frame, height, offset) {
-  for (let i = 0; i < width; i+=10) {
+  for (let i = 0; i < width; i+=1) {
     y = mid_pass_filter(i, offset, frame, width, height) + offset;
     console.log(`X: ${i}, Y: ${y}`);
     context.lineTo(i,y);
